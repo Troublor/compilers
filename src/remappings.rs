@@ -67,8 +67,14 @@ impl Remapping {
 
     /// Removes the `base` path from the remapping
     pub fn strip_prefix(&mut self, base: impl AsRef<Path>) -> &mut Self {
+        // converting a string path to Path and back will lose the trailing slash,
+        // so we need to remember if the path had a trailing slash.
+        let has_trailing_slash = self.path.ends_with('/');
         if let Ok(stripped) = Path::new(&self.path).strip_prefix(base.as_ref()) {
             self.path = format!("{}", stripped.display());
+            if has_trailing_slash {
+                self.path.push('/');
+            }
         }
         self
     }
@@ -156,9 +162,6 @@ impl fmt::Display for Remapping {
             }
         });
 
-        if !s.ends_with('/') {
-            s.push('/');
-        }
         f.write_str(&s)
     }
 }
@@ -346,9 +349,6 @@ impl fmt::Display for RelativeRemapping {
             }
         });
 
-        if !s.ends_with('/') {
-            s.push('/');
-        }
         f.write_str(&s)
     }
 }
@@ -1213,7 +1213,7 @@ mod tests {
                 path: "a/b/c/d".to_string(),
             }
         );
-        assert_eq!(remapping.to_string(), "context:oz=a/b/c/d/".to_string());
+        assert_eq!(remapping.to_string(), "context:oz=a/b/c/d".to_string());
 
         let remapping = "context:foo=C:/bar/src/";
         let remapping = Remapping::from_str(remapping).unwrap();
