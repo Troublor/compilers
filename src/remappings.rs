@@ -16,9 +16,9 @@ const JS_LIB_DIR: &str = "node_modules";
 #[cfg(target_os = "windows")]
 fn to_slash_path_preserve_trailing_slash(path: &str) -> String {
     use path_slash::PathExt;
-    let has_trailing_path = path.ends_with('/') || path.ends_with('\\');
-    let mut p = Path::new(path).to_slash_lossy().to_string();
-    if has_trailing_path {
+    let has_trailing_slash = path.ends_with('/') || path.ends_with('\\');
+    let mut p = Path::new(path).to_slash_lossy().into_string();
+    if has_trailing_slash {
         p.push('/');
     }
     p
